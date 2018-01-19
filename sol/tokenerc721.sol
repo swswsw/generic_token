@@ -1,7 +1,7 @@
 pragma solidity ^0.4.19;
-contract ERC721 {
-   string constant private tokenName = "My ERC721 Token";
-   string constant private tokenSymbol = "MET";
+contract Erc721 {
+   string constant private tokenName = "fan coin";
+   string constant private tokenSymbol = "fan";
    uint256 constant private totalTokens = 1000000;
    mapping(address => uint) private balances;
    mapping(uint256 => address) private tokenOwners;
@@ -15,6 +15,9 @@ contract ERC721 {
        ownerTokens[owner][i] = 0;
      }
    }
+   //
+   // erc20 compatibility
+   //
    function name() public constant returns (string){
        return tokenName;
    }
@@ -27,6 +30,11 @@ contract ERC721 {
    function balanceOf(address _owner) constant returns (uint){
        return balances[_owner];
    }
+   
+   //
+   // erc721-specific.  non-erc20.
+   //
+   
    function ownerOf(uint256 _tokenId) constant returns (address){
        require(tokenExists[_tokenId]);
        return tokenOwners[_tokenId];
@@ -67,6 +75,11 @@ contract ERC721 {
    function tokenMetadata(uint256 _tokenId) constant returns (string infoUrl){
        return tokenLinks[_tokenId];
    }
+   
+   //
+   // other
+   //
+   
    event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
    event Approval(address indexed _owner, address indexed _approved, uint256 _tokenId);
 }
