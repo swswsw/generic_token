@@ -1,0 +1,415 @@
+<!doctype html>
+<html>
+<head>
+
+<script
+	  src="https://code.jquery.com/jquery-2.2.4.js"
+	  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+	  crossorigin="anonymous"></script>
+
+<!-- have to use web3 0.20 (the same version as the one used in remix.  using web3 0.18 doesn't work. -->
+<script src="web3.min.js"></script>
+</head>
+
+<body>
+
+<label>token id: </label><input id="txtTokenId" type="text" size="8" placeholder="integer" value="15"/>
+<br/>
+<label>from addr: </label><input id="txtFromAddr" type="text" size="50" value="0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6"/>
+<br/>
+<label>to addr: </label><input id="txtToAddr" type="text" size="50" value="0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359"/>
+<br/>
+<label>metadata: </label><input id="txtMetadata" type="text" size="100" value="http://techcrunchhackathon.appspot.com/munich/metadata.jsp?tokenid=1"/>
+<br/>
+<button id="btnMint">mint</button>
+<br/>
+<button id="btnTransfer">transfer</button>
+<br/>
+<button id="btnSetMetadata">set metadata</button>
+<br/>
+<button id="btnTokenMetadata">read metadata</button>
+<br/>
+<button id="btnBalance">read balance</button>
+<br/>
+<p>it may take sometime after transfer for the balance to show up.</p>
+
+</body>
+
+<script>
+    
+
+        if (typeof web3 !== 'undefined') {
+        	console.log("web3 already defined");
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            console.log("new web3");
+            //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+        
+        //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        //web3 = new Web3(new Web3.providers.HttpProvider("https://sokol.poa.network"));
+        
+        
+        web3.eth.defaultAccount = web3.eth.accounts[0];
+        var defaultAccount = web3.eth.accounts[0];
+        console.log("default account: ", defaultAccount);
+        
+        
+        var abi = [
+               	{
+            		"constant": true,
+            		"inputs": [
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "ownerOf",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "address"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "view",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [
+            			{
+            				"name": "_owner",
+            				"type": "address"
+            			}
+            		],
+            		"name": "tokensOf",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "uint256[]"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "view",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "tokenMetadata",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "string"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "view",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "approvedFor",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "address"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "view",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [],
+            		"name": "symbol",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "string"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "pure",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [
+            			{
+            				"name": "_owner",
+            				"type": "address"
+            			}
+            		],
+            		"name": "balanceOf",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "uint256"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "view",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [],
+            		"name": "totalSupply",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "uint256"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "view",
+            		"type": "function"
+            	},
+            	{
+            		"constant": true,
+            		"inputs": [],
+            		"name": "name",
+            		"outputs": [
+            			{
+            				"name": "",
+            				"type": "string"
+            			}
+            		],
+            		"payable": false,
+            		"stateMutability": "pure",
+            		"type": "function"
+            	},
+            	{
+            		"anonymous": false,
+            		"inputs": [
+            			{
+            				"indexed": true,
+            				"name": "_owner",
+            				"type": "address"
+            			},
+            			{
+            				"indexed": true,
+            				"name": "_approved",
+            				"type": "address"
+            			},
+            			{
+            				"indexed": false,
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "Approval",
+            		"type": "event"
+            	},
+            	{
+            		"constant": false,
+            		"inputs": [
+            			{
+            				"name": "_to",
+            				"type": "address"
+            			},
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "transfer",
+            		"outputs": [],
+            		"payable": false,
+            		"stateMutability": "nonpayable",
+            		"type": "function"
+            	},
+            	{
+            		"anonymous": false,
+            		"inputs": [
+            			{
+            				"indexed": true,
+            				"name": "_from",
+            				"type": "address"
+            			},
+            			{
+            				"indexed": true,
+            				"name": "_to",
+            				"type": "address"
+            			},
+            			{
+            				"indexed": false,
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "Transfer",
+            		"type": "event"
+            	},
+            	{
+            		"constant": false,
+            		"inputs": [
+            			{
+            				"name": "_to",
+            				"type": "address"
+            			},
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "approve",
+            		"outputs": [],
+            		"payable": false,
+            		"stateMutability": "nonpayable",
+            		"type": "function"
+            	},
+            	{
+            		"constant": false,
+            		"inputs": [
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "takeOwnership",
+            		"outputs": [],
+            		"payable": false,
+            		"stateMutability": "nonpayable",
+            		"type": "function"
+            	},
+            	{
+            		"constant": false,
+            		"inputs": [
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			},
+            			{
+            				"name": "metadata",
+            				"type": "string"
+            			}
+            		],
+            		"name": "setMetadata",
+            		"outputs": [],
+            		"payable": false,
+            		"stateMutability": "nonpayable",
+            		"type": "function"
+            	},
+            	{
+            		"constant": false,
+            		"inputs": [
+            			{
+            				"name": "_to",
+            				"type": "address"
+            			},
+            			{
+            				"name": "_tokenId",
+            				"type": "uint256"
+            			}
+            		],
+            		"name": "mint",
+            		"outputs": [],
+            		"payable": false,
+            		"stateMutability": "nonpayable",
+            		"type": "function"
+            	}
+            ];
+        
+        
+        var contractAddr = "0x69b93a54c0e19f6599f548c0a6d69cb0cf106798";
+        
+        var erc721Contract = web3.eth.contract(abi);
+        var erc721 = erc721Contract.at(contractAddr);
+        console.log(erc721);
+
+        
+        //var fromAddr = "0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6";
+        //var toAddr = "0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359";
+        //var tokenId = 14;
+        
+        $("#btnMint").click(function() {
+        	var addr = $("#txtFromAddr").val();
+        	var tokenId = parseInt($("#txtTokenId").val());
+        	erc721.mint(addr, tokenId, function(error, result){
+        		if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+        	});
+        })
+        
+        $("#btnTransfer").click(function() {
+        	var toAddr = $("#txtToAddr").val();
+        	var tokenId = parseInt($("#txtTokenId").val());
+        	// does not work until a later time (presumably has to wait until all elements loaded).
+        	erc721.transfer(toAddr, tokenId, function(error, result){
+            	if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+            	
+            	
+            });
+            
+        });
+        
+        $("#btnSetMetadata").click(function() {
+        	var tokenId = parseInt($("#txtTokenId").val());
+        	var metadata = $("#txtMetadata").val();
+        	// does not work until a later time (presumably has to wait until all elements loaded).
+        	erc721.setMetadata(tokenId, metadata, function(error, result){
+            	if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+            	
+            	
+            });
+            
+        });
+        
+        $("#btnTokenMetadata").click(function() {
+        	var tokenId = parseInt($("#txtTokenId").val());
+        	erc721.tokenMetadata(tokenId, function(error, result){
+        		if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+        	});
+        })
+        
+        function readBalance(contract, addr) {
+        	contract.balanceOf(addr, function(error, result){
+                if(!error) {
+                    console.log(result);
+                    console.log("balance=" + result.c[0]);
+                } else {
+                    console.error(error);
+                }
+            });
+        }
+        
+        $("#btnBalance").click(function() {
+        	var toAddr = $("#txtToAddr").val();
+        	readBalance(erc721, toAddr);
+        })
+        
+</script>
+
+
+</html>
