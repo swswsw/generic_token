@@ -260,9 +260,9 @@
         var fromAddr = "0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6";
         var toAddr = "0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359";
         
-        var tokenId = 2;
+        var tokenId = 14;
         $("#btnMint").click(function() {
-            erc721.mint(fromAddr, tokenId++, function(error, result){
+            erc721.mint(fromAddr, tokenId, function(error, result){
                 if(!error) {
                     console.log(result);
                 } else {
