@@ -3,9 +3,9 @@
 <head>
 
 <script
-	  src="https://code.jquery.com/jquery-2.2.4.js"
-	  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-	  crossorigin="anonymous"></script>
+      src="https://code.jquery.com/jquery-2.2.4.js"
+      integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+      crossorigin="anonymous"></script>
 
 <!-- have to use web3 0.20 (the same version as the one used in remix.  using web3 0.18 doesn't work. -->
 <script src="web3.min.js"></script>
@@ -13,6 +13,8 @@
 
 <body>
 
+<button id="btnMint">mint</button>
+<br/>
 <button id="btnTransfer">transfer</button>
 <br/>
 <button id="btnBalance">read balance</button>
@@ -25,7 +27,7 @@
     
 
         if (typeof web3 !== 'undefined') {
-        	console.log("web3 already defined");
+            console.log("web3 already defined");
             web3 = new Web3(web3.currentProvider);
         } else {
             // set the provider you want from Web3.providers
@@ -43,332 +45,250 @@
         
         
         var abi = [
-               	{
-            		"constant": true,
-            		"inputs": [],
-            		"name": "totalSupply",
-            		"outputs": [
-            			{
-            				"name": "",
-            				"type": "uint256"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "view",
-            		"type": "function"
-            	},
-            	{
-            		"constant": true,
-            		"inputs": [],
-            		"name": "symbol",
-            		"outputs": [
-            			{
-            				"name": "",
-            				"type": "string"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "view",
-            		"type": "function"
-            	},
-            	{
-            		"constant": true,
-            		"inputs": [],
-            		"name": "name",
-            		"outputs": [
-            			{
-            				"name": "",
-            				"type": "string"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "view",
-            		"type": "function"
-            	},
-            	{
-            		"constant": true,
-            		"inputs": [],
-            		"name": "decimals",
-            		"outputs": [
-            			{
-            				"name": "",
-            				"type": "uint8"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "view",
-            		"type": "function"
-            	},
-            	{
-            		"constant": true,
-            		"inputs": [
-            			{
-            				"name": "",
-            				"type": "address"
-            			},
-            			{
-            				"name": "",
-            				"type": "address"
-            			}
-            		],
-            		"name": "allowance",
-            		"outputs": [
-            			{
-            				"name": "",
-            				"type": "uint256"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "view",
-            		"type": "function"
-            	},
-            	{
-            		"constant": true,
-            		"inputs": [
-            			{
-            				"name": "",
-            				"type": "address"
-            			}
-            		],
-            		"name": "balanceOf",
-            		"outputs": [
-            			{
-            				"name": "",
-            				"type": "uint256"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "view",
-            		"type": "function"
-            	},
-            	{
-            		"inputs": [
-            			{
-            				"name": "initialSupply",
-            				"type": "uint256"
-            			},
-            			{
-            				"name": "tokenName",
-            				"type": "string"
-            			},
-            			{
-            				"name": "tokenSymbol",
-            				"type": "string"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "constructor"
-            	},
-            	{
-            		"anonymous": false,
-            		"inputs": [
-            			{
-            				"indexed": true,
-            				"name": "from",
-            				"type": "address"
-            			},
-            			{
-            				"indexed": false,
-            				"name": "value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "Burn",
-            		"type": "event"
-            	},
-            	{
-            		"constant": false,
-            		"inputs": [
-            			{
-            				"name": "_from",
-            				"type": "address"
-            			},
-            			{
-            				"name": "_to",
-            				"type": "address"
-            			},
-            			{
-            				"name": "_value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "transferFrom",
-            		"outputs": [
-            			{
-            				"name": "success",
-            				"type": "bool"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "function"
-            	},
-            	{
-            		"anonymous": false,
-            		"inputs": [
-            			{
-            				"indexed": true,
-            				"name": "from",
-            				"type": "address"
-            			},
-            			{
-            				"indexed": true,
-            				"name": "to",
-            				"type": "address"
-            			},
-            			{
-            				"indexed": false,
-            				"name": "value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "Transfer",
-            		"type": "event"
-            	},
-            	{
-            		"constant": false,
-            		"inputs": [
-            			{
-            				"name": "_from",
-            				"type": "address"
-            			},
-            			{
-            				"name": "_value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "burnFrom",
-            		"outputs": [
-            			{
-            				"name": "success",
-            				"type": "bool"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "function"
-            	},
-            	{
-            		"constant": false,
-            		"inputs": [
-            			{
-            				"name": "_spender",
-            				"type": "address"
-            			},
-            			{
-            				"name": "_value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "approve",
-            		"outputs": [
-            			{
-            				"name": "success",
-            				"type": "bool"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "function"
-            	},
-            	{
-            		"constant": false,
-            		"inputs": [
-            			{
-            				"name": "_spender",
-            				"type": "address"
-            			},
-            			{
-            				"name": "_value",
-            				"type": "uint256"
-            			},
-            			{
-            				"name": "_extraData",
-            				"type": "bytes"
-            			}
-            		],
-            		"name": "approveAndCall",
-            		"outputs": [
-            			{
-            				"name": "success",
-            				"type": "bool"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "function"
-            	},
-            	{
-            		"constant": false,
-            		"inputs": [
-            			{
-            				"name": "_to",
-            				"type": "address"
-            			},
-            			{
-            				"name": "_value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "transfer",
-            		"outputs": [],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "function"
-            	},
-            	{
-            		"constant": false,
-            		"inputs": [
-            			{
-            				"name": "_value",
-            				"type": "uint256"
-            			}
-            		],
-            		"name": "burn",
-            		"outputs": [
-            			{
-            				"name": "success",
-            				"type": "bool"
-            			}
-            		],
-            		"payable": false,
-            		"stateMutability": "nonpayable",
-            		"type": "function"
-            	}
+                {
+                    "constant": true,
+                    "inputs": [
+                        {
+                            "name": "_owner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "tokensOf",
+                    "outputs": [
+                        {
+                            "name": "",
+                            "type": "uint256[]"
+                        }
+                    ],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "constant": true,
+                    "inputs": [
+                        {
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "approvedFor",
+                    "outputs": [
+                        {
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "constant": true,
+                    "inputs": [
+                        {
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "ownerOf",
+                    "outputs": [
+                        {
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "constant": true,
+                    "inputs": [],
+                    "name": "totalSupply",
+                    "outputs": [
+                        {
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "constant": true,
+                    "inputs": [
+                        {
+                            "name": "_owner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "balanceOf",
+                    "outputs": [
+                        {
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "constant": false,
+                    "inputs": [
+                        {
+                            "name": "_to",
+                            "type": "address"
+                        },
+                        {
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "mint",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "name": "_owner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "name": "_approved",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "Approval",
+                    "type": "event"
+                },
+                {
+                    "constant": false,
+                    "inputs": [
+                        {
+                            "name": "_to",
+                            "type": "address"
+                        },
+                        {
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "transfer",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "name": "_from",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "name": "_to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "Transfer",
+                    "type": "event"
+                },
+                {
+                    "constant": false,
+                    "inputs": [
+                        {
+                            "name": "_to",
+                            "type": "address"
+                        },
+                        {
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "approve",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "constant": false,
+                    "inputs": [
+                        {
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "takeOwnership",
+                    "outputs": [],
+                    "payable": false,
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
             ];
         
         
-        var contractAddr = "0x4e743e1b9ee3764721019c51999032ee799a73bb";
+        var contractAddr = "0x4e14360b7dfbf6bbf97fd773983bd3ce5020111e";
         
-        var tokenerc20Contract = web3.eth.contract(abi);
-        var tokenerc20 = tokenerc20Contract.at(contractAddr);
-        console.log(tokenerc20);
+        var erc721Contract = web3.eth.contract(abi);
+        var erc721 = erc721Contract.at(contractAddr);
+        console.log(erc721);
 
         
-        
+        var fromAddr = "0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6";
         var toAddr = "0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359";
         
-        $("#btnTransfer").click(function() {
-        	
-        	var amount = 10;
-        	
-        	// does not work until a later time (presumably has to wait until all elements loaded).
-        	tokenerc20.transfer(toAddr, amount, function(error, result){
-            	if(!error) {
+        var tokenId = 2;
+        $("#btnMint").click(function() {
+            erc721.mint(fromAddr, tokenId++, function(error, result){
+                if(!error) {
                     console.log(result);
                 } else {
                     console.error(error);
                 }
-            	
-            	
+            });
+        })
+        
+        $("#btnTransfer").click(function() {
+            
+            // does not work until a later time (presumably has to wait until all elements loaded).
+            erc721.transfer(toAddr, tokenId, function(error, result){
+                if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+                
+                
             });
             
         });
         
         
         function readBalance(contract, addr) {
-        	contract.balanceOf(addr, function(error, result){
+            contract.balanceOf(addr, function(error, result){
                 if(!error) {
                     console.log(result);
                     console.log("balance=" + result.c[0]);
@@ -379,7 +299,7 @@
         }
         
         $("#btnBalance").click(function() {
-        	readBalance(tokenerc20, toAddr);
+            readBalance(erc721, toAddr);
         })
 /*      
 var greeterContract = new web3.eth.contract([{"constant":true,"inputs":[],"name":"getData","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"kill","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_data","type":"string"}],"name":"setData","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]);

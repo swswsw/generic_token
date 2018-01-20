@@ -1,226 +1,350 @@
-pragma solidity ^0.4.18;
+<!doctype html>
+<html>
+<head>
 
-//import "./ERC721.sol";
-//import "../math/SafeMath.sol";
+<script
+    src="https://code.jquery.com/jquery-2.2.4.js"
+    integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+    crossorigin="anonymous"></script>
 
-/**
- * @title ERC721Token
- * Generic implementation for the required functionality of the ERC721 standard
- */
-contract Erc721 {
-  //using SafeMath for uint256;
+<!-- have to use web3 0.20 (the same version as the one used in remix.  using web3 0.18 doesn't work. -->
+<script src="web3.min.js"></script>
+</head>
 
-  // Total amount of tokens
-  uint256 private totalTokens;
+<body>
 
-  // Mapping from token ID to owner
-  mapping (uint256 => address) private tokenOwner;
+<button id="btnMint">mint</button>
+<br/>
+<button id="btnTransfer">transfer</button>
+<br/>
+<button id="btnBalance">read balance</button>
+<br/>
+<p>it may take sometime after transfer for the balance to show up.</p>
 
-  // Mapping from token ID to approved address
-  mapping (uint256 => address) private tokenApprovals;
+</body>
 
-  // Mapping from owner to list of owned token IDs
-  mapping (address => uint256[]) private ownedTokens;
+<script>
+    
 
-  // Mapping from token ID to index of the owner tokens list
-  mapping(uint256 => uint256) private ownedTokensIndex;
+        if (typeof web3 !== 'undefined') {
+          console.log("web3 already defined");
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // set the provider you want from Web3.providers
+            console.log("new web3");
+            //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+        
+        //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        //web3 = new Web3(new Web3.providers.HttpProvider("https://sokol.poa.network"));
+        
+        
+        web3.eth.defaultAccount = web3.eth.accounts[0];
+        var defaultAccount = web3.eth.accounts[0];
+        console.log("default account: ", defaultAccount);
+        
+        
+        var abi = [
+                {
+                "constant": true,
+                "inputs": [
+                  {
+                    "name": "_owner",
+                    "type": "address"
+                  }
+                ],
+                "name": "tokensOf",
+                "outputs": [
+                  {
+                    "name": "",
+                    "type": "uint256[]"
+                  }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+              },
+              {
+                "constant": true,
+                "inputs": [
+                  {
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "approvedFor",
+                "outputs": [
+                  {
+                    "name": "",
+                    "type": "address"
+                  }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+              },
+              {
+                "constant": true,
+                "inputs": [
+                  {
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "ownerOf",
+                "outputs": [
+                  {
+                    "name": "",
+                    "type": "address"
+                  }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+              },
+              {
+                "constant": true,
+                "inputs": [],
+                "name": "totalSupply",
+                "outputs": [
+                  {
+                    "name": "",
+                    "type": "uint256"
+                  }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+              },
+              {
+                "constant": true,
+                "inputs": [
+                  {
+                    "name": "_owner",
+                    "type": "address"
+                  }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                  {
+                    "name": "",
+                    "type": "uint256"
+                  }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+              },
+              {
+                "constant": false,
+                "inputs": [
+                  {
+                    "name": "_to",
+                    "type": "address"
+                  },
+                  {
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "mint",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+              },
+              {
+                "anonymous": false,
+                "inputs": [
+                  {
+                    "indexed": true,
+                    "name": "_owner",
+                    "type": "address"
+                  },
+                  {
+                    "indexed": true,
+                    "name": "_approved",
+                    "type": "address"
+                  },
+                  {
+                    "indexed": false,
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "Approval",
+                "type": "event"
+              },
+              {
+                "constant": false,
+                "inputs": [
+                  {
+                    "name": "_to",
+                    "type": "address"
+                  },
+                  {
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "transfer",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+              },
+              {
+                "anonymous": false,
+                "inputs": [
+                  {
+                    "indexed": true,
+                    "name": "_from",
+                    "type": "address"
+                  },
+                  {
+                    "indexed": true,
+                    "name": "_to",
+                    "type": "address"
+                  },
+                  {
+                    "indexed": false,
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "Transfer",
+                "type": "event"
+              },
+              {
+                "constant": false,
+                "inputs": [
+                  {
+                    "name": "_to",
+                    "type": "address"
+                  },
+                  {
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "approve",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+              },
+              {
+                "constant": false,
+                "inputs": [
+                  {
+                    "name": "_tokenId",
+                    "type": "uint256"
+                  }
+                ],
+                "name": "takeOwnership",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+              }
+            ];
+        
+        
+        var contractAddr = "0x4e14360b7dfbf6bbf97fd773983bd3ce5020111e";
+        
+        var erc721Contract = web3.eth.contract(abi);
+        var erc721 = erc721Contract.at(contractAddr);
+        console.log(erc721);
 
-  /**
-  * @dev Guarantees msg.sender is owner of the given token
-  * @param _tokenId uint256 ID of the token to validate its ownership belongs to msg.sender
-  */
-  modifier onlyOwnerOf(uint256 _tokenId) {
-    require(ownerOf(_tokenId) == msg.sender);
-    _;
-  }
-
-  /**
-  * @dev Gets the total amount of tokens stored by the contract
-  * @return uint256 representing the total amount of tokens
-  */
-  function totalSupply() public view returns (uint256) {
-    return totalTokens;
-  }
-
-  /**
-  * @dev Gets the balance of the specified address
-  * @param _owner address to query the balance of
-  * @return uint256 representing the amount owned by the passed address
-  */
-  function balanceOf(address _owner) public view returns (uint256) {
-    return ownedTokens[_owner].length;
-  }
-
-  /**
-  * @dev Gets the list of tokens owned by a given address
-  * @param _owner address to query the tokens of
-  * @return uint256[] representing the list of tokens owned by the passed address
-  */
-  function tokensOf(address _owner) public view returns (uint256[]) {
-    return ownedTokens[_owner];
-  }
-
-  /**
-  * @dev Gets the owner of the specified token ID
-  * @param _tokenId uint256 ID of the token to query the owner of
-  * @return owner address currently marked as the owner of the given token ID
-  */
-  function ownerOf(uint256 _tokenId) public view returns (address) {
-    address owner = tokenOwner[_tokenId];
-    require(owner != address(0));
-    return owner;
-  }
-
-  /**
-   * @dev Gets the approved address to take ownership of a given token ID
-   * @param _tokenId uint256 ID of the token to query the approval of
-   * @return address currently approved to take ownership of the given token ID
-   */
-  function approvedFor(uint256 _tokenId) public view returns (address) {
-    return tokenApprovals[_tokenId];
-  }
-
-  /**
-  * @dev Transfers the ownership of a given token ID to another address
-  * @param _to address to receive the ownership of the given token ID
-  * @param _tokenId uint256 ID of the token to be transferred
-  */
-  function transfer(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
-    clearApprovalAndTransfer(msg.sender, _to, _tokenId);
-  }
-
-  /**
-  * @dev Approves another address to claim for the ownership of the given token ID
-  * @param _to address to be approved for the given token ID
-  * @param _tokenId uint256 ID of the token to be approved
-  */
-  function approve(address _to, uint256 _tokenId) public onlyOwnerOf(_tokenId) {
-    address owner = ownerOf(_tokenId);
-    require(_to != owner);
-    if (approvedFor(_tokenId) != 0 || _to != 0) {
-      tokenApprovals[_tokenId] = _to;
-      Approval(owner, _to, _tokenId);
+        
+        var fromAddr = "0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6";
+        var toAddr = "0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359";
+        
+        var tokenId = 2;
+        $("#btnMint").click(function() {
+          erc721.mint(fromAddr, tokenId++, function(error, result){
+            if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+          });
+        })
+        
+        $("#btnTransfer").click(function() {
+          
+          // does not work until a later time (presumably has to wait until all elements loaded).
+          erc721.transfer(toAddr, tokenId, function(error, result){
+              if(!error) {
+                    console.log(result);
+                } else {
+                    console.error(error);
+                }
+              
+              
+            });
+            
+        });
+        
+        
+        function readBalance(contract, addr) {
+          contract.balanceOf(addr, function(error, result){
+                if(!error) {
+                    console.log(result);
+                    console.log("balance=" + result.c[0]);
+                } else {
+                    console.error(error);
+                }
+            });
+        }
+        
+        $("#btnBalance").click(function() {
+          readBalance(erc721, toAddr);
+        })
+/*      
+var greeterContract = new web3.eth.contract([{"constant":true,"inputs":[],"name":"getData","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"kill","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_data","type":"string"}],"name":"setData","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]);
+var greeter = greeterContract.new(
+   {
+     from: web3.eth.accounts[0], 
+     data: '0x6060604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610394806100536000396000f300606060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633bc5de301461005c57806341c0e1b5146100ea57806347064d6a146100ff575b600080fd5b341561006757600080fd5b61006f61015c565b6040518080602001828103825283818151815260200191508051906020019080838360005b838110156100af578082015181840152602081019050610094565b50505050905090810190601f1680156100dc5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b34156100f557600080fd5b6100fd610204565b005b341561010a57600080fd5b61015a600480803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091905050610295565b005b6101646102af565b60018054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156101fa5780601f106101cf576101008083540402835291602001916101fa565b820191906000526020600020905b8154815290600101906020018083116101dd57829003601f168201915b5050505050905090565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415610293576000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16ff5b565b80600190805190602001906102ab9291906102c3565b5050565b602060405190810160405280600081525090565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061030457805160ff1916838001178555610332565b82800160010185558215610332579182015b82811115610331578251825591602001919060010190610316565b5b50905061033f9190610343565b5090565b61036591905b80821115610361576000816000905550600101610349565b5090565b905600a165627a7a723058200972152f185a84c6c2bca5835ef47939de16aa9635efdfcc33a7746ad3356f430029', 
+     gas: '4700000'
+   }, function (e, contract){
+    console.log(e, contract);
+    if (typeof contract.address !== 'undefined') {
+         console.log('Contract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash);
     }
-  }
+ })
+*/
+        
+        
+/*        
+        
+        //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        abi = JSON.parse('[{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"totalVotesFor","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"validCandidate","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"votesReceived","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"x","type":"bytes32"}],"name":"bytes32ToString","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"candidateList","outputs":[{"name":"","type":"bytes32"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"voteForCandidate","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"contractOwner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"inputs":[{"name":"candidateNames","type":"bytes32[]"}],"payable":false,"type":"constructor"}]')
+        VotingContract = web3.eth.contract(abi);
+        // In your nodejs console, execute contractInstance.address to get the address at which the contract is deployed and change the line below to use your deployed address
+        contractInstance = VotingContract.at('0x2a9c1d265d06d47e8f7b00ffa987c9185aecf672');
+        candidates = {"Rama": "candidate-1", "Nick": "candidate-2", "Jose": "candidate-3"}
 
-  /**
-  * @dev Claims the ownership of a given token ID
-  * @param _tokenId uint256 ID of the token being claimed by the msg.sender
-  */
-  function takeOwnership(uint256 _tokenId) public {
-    require(isApprovedFor(msg.sender, _tokenId));
-    clearApprovalAndTransfer(ownerOf(_tokenId), msg.sender, _tokenId);
-  }
-  
-  function mint(address _to, uint256 _tokenId) public {
-      _mint(_to, _tokenId);
-  }
+        function voteForCandidate() {
+          candidateName = $("#candidate").val();
+          contractInstance.voteForCandidate(candidateName, {from: web3.eth.accounts[0]}, function() {
+            let div_id = candidates[candidateName];
+            $("#" + div_id).html(contractInstance.totalVotesFor.call(candidateName).toString());
+          });
+        }
 
-  /**
-  * @dev Mint token function
-  * @param _to The address that will own the minted token
-  * @param _tokenId uint256 ID of the token to be minted by the msg.sender
-  */
-  function _mint(address _to, uint256 _tokenId) internal {
-    require(_to != address(0));
-    addToken(_to, _tokenId);
-    Transfer(0x0, _to, _tokenId);
-  }
+        $(document).ready(function() {
+          candidateNames = Object.keys(candidates);
+          for (var i = 0; i < candidateNames.length; i++) {
+            let name = candidateNames[i];
+            let val = contractInstance.totalVotesFor.call(name).toString()
+            $("#" + candidates[name]).html(val);
+          }
+        });
+*/        
+        
+</script>
 
-  /**
-  * @dev Burns a specific token
-  * @param _tokenId uint256 ID of the token being burned by the msg.sender
-  */
-  function _burn(uint256 _tokenId) onlyOwnerOf(_tokenId) internal {
-    if (approvedFor(_tokenId) != 0) {
-      clearApproval(msg.sender, _tokenId);
-    }
-    removeToken(msg.sender, _tokenId);
-    Transfer(msg.sender, 0x0, _tokenId);
-  }
 
-  /**
-   * @dev Tells whether the msg.sender is approved for the given token ID or not
-   * This function is not private so it can be extended in further implementations like the operatable ERC721
-   * @param _owner address of the owner to query the approval of
-   * @param _tokenId uint256 ID of the token to query the approval of
-   * @return bool whether the msg.sender is approved for the given token ID or not
-   */
-  function isApprovedFor(address _owner, uint256 _tokenId) internal view returns (bool) {
-    return approvedFor(_tokenId) == _owner;
-  }
-
-  /**
-  * @dev Internal function to clear current approval and transfer the ownership of a given token ID
-  * @param _from address which you want to send tokens from
-  * @param _to address which you want to transfer the token to
-  * @param _tokenId uint256 ID of the token to be transferred
-  */
-  function clearApprovalAndTransfer(address _from, address _to, uint256 _tokenId) internal {
-    require(_to != address(0));
-    require(_to != ownerOf(_tokenId));
-    require(ownerOf(_tokenId) == _from);
-
-    clearApproval(_from, _tokenId);
-    removeToken(_from, _tokenId);
-    addToken(_to, _tokenId);
-    Transfer(_from, _to, _tokenId);
-  }
-
-  /**
-  * @dev Internal function to clear current approval of a given token ID
-  * @param _tokenId uint256 ID of the token to be transferred
-  */
-  function clearApproval(address _owner, uint256 _tokenId) private {
-    require(ownerOf(_tokenId) == _owner);
-    tokenApprovals[_tokenId] = 0;
-    Approval(_owner, 0, _tokenId);
-  }
-
-  /**
-  * @dev Internal function to add a token ID to the list of a given address
-  * @param _to address representing the new owner of the given token ID
-  * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
-  */
-  function addToken(address _to, uint256 _tokenId) private {
-    require(tokenOwner[_tokenId] == address(0));
-    tokenOwner[_tokenId] = _to;
-    uint256 length = balanceOf(_to);
-    ownedTokens[_to].push(_tokenId);
-    ownedTokensIndex[_tokenId] = length;
-    //totalTokens = totalTokens.add(1);
-    totalTokens = totalTokens + 1;
-  }
-
-  /**
-  * @dev Internal function to remove a token ID from the list of a given address
-  * @param _from address representing the previous owner of the given token ID
-  * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
-  */
-  function removeToken(address _from, uint256 _tokenId) private {
-    require(ownerOf(_tokenId) == _from);
-
-    uint256 tokenIndex = ownedTokensIndex[_tokenId];
-    //uint256 lastTokenIndex = balanceOf(_from).sub(1);
-    uint256 lastTokenIndex = balanceOf(_from) - 1;
-    uint256 lastToken = ownedTokens[_from][lastTokenIndex];
-
-    tokenOwner[_tokenId] = 0;
-    ownedTokens[_from][tokenIndex] = lastToken;
-    ownedTokens[_from][lastTokenIndex] = 0;
-    // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
-    // be zero. Then we can make sure that we will remove _tokenId from the ownedTokens list since we are first swapping
-    // the lastToken to the first position, and then dropping the element placed in the last position of the list
-
-    ownedTokens[_from].length--;
-    ownedTokensIndex[_tokenId] = 0;
-    ownedTokensIndex[lastToken] = tokenIndex;
-    //totalTokens = totalTokens.sub(1);
-    totalTokens = totalTokens - 1;
-  }
-  
-  event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
-  event Approval(address indexed _owner, address indexed _approved, uint256 _tokenId);
-  
-  // resource: https://github.com/facuspagnuolo/zeppelin-solidity/blob/4be30dc3aeea275bf75a03e7c73ed0fb4c0f5607/contracts/token/ERC721Token.sol
-}
+</html>
