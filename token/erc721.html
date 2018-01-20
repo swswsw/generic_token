@@ -13,6 +13,12 @@
 
 <body>
 
+<label>token id: </label><input id="txtTokenId" type="text" size="8" placeholder="integer" value="15"/>
+<br/>
+<label>from addr: </label><input id="txtFromAddr" type="text" size="50" value="0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6"/>
+<br/>
+<label>to addr: </label><input id="txtToAddr" type="text" size="50" value="0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359"/>
+<br/>
 <button id="btnMint">mint</button>
 <br/>
 <button id="btnTransfer">transfer</button>
@@ -257,12 +263,14 @@
         console.log(erc721);
 
         
-        var fromAddr = "0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6";
-        var toAddr = "0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359";
+        //var fromAddr = "0xDb7B6029B531Be675733DeC2AA5554Ca457BD6F6";
+        //var toAddr = "0x19eD4B1F0EF47306a72ea5A093e7F73a8d70F359";
+        //var tokenId = 14;
         
-        var tokenId = 14;
         $("#btnMint").click(function() {
-            erc721.mint(fromAddr, tokenId, function(error, result){
+            var addr = $("#txtFromAddr").val();
+            var tokenId = parseInt($("#txtTokenId").val());
+            erc721.mint(addr, tokenId, function(error, result){
                 if(!error) {
                     console.log(result);
                 } else {
@@ -272,7 +280,8 @@
         })
         
         $("#btnTransfer").click(function() {
-            
+            var toAddr = $("#txtToAddr").val();
+            var tokenId = parseInt($("#txtTokenId").val());
             // does not work until a later time (presumably has to wait until all elements loaded).
             erc721.transfer(toAddr, tokenId, function(error, result){
                 if(!error) {
@@ -299,6 +308,7 @@
         }
         
         $("#btnBalance").click(function() {
+            var toAddr = $("txtToAddr").val();
             readBalance(erc721, toAddr);
         })
 /*      
